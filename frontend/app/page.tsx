@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Tool } from './types';
 import ThemeToggle from '../components/ThemeToggle';
-import config from '../config';
 
 export default function Home() {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -11,6 +10,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   const categories = [
     'All',
@@ -33,17 +34,18 @@ export default function Home() {
 
   const fetchTools = async () => {
     try {
-      const apiUrl = `${config.apiBaseUrl}/api/tools`;
+      setLoading(true);
+      setError(null);
+      
+      const apiUrl = `${API_URL}/api/tools`;
       console.log('Fetching tools from:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        mode: 'cors',
-        credentials: 'omit'
+        cache: 'no-store'
       });
       
       if (!response.ok) {
@@ -54,11 +56,16 @@ export default function Home() {
       
       const data = await response.json();
       console.log('Data received:', data);
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received');
+      }
+      
       setTools(data);
-      setLoading(false);
     } catch (err) {
       console.error('Error fetching tools:', err);
       setError(err instanceof Error ? err.message : 'Error loading tools');
+    } finally {
       setLoading(false);
     }
   };
