@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Tool } from './types';
 import ThemeToggle from '../components/ThemeToggle';
+import config from '../config';
 
 export default function Home() {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -32,11 +33,16 @@ export default function Home() {
 
   const fetchTools = async () => {
     try {
-      console.log('Fetching tools...');
-      const response = await fetch('/api/tools');
+      console.log('Fetching tools from:', `${config.apiBaseUrl}/api/tools`);
+      const response = await fetch(`${config.apiBaseUrl}/api/tools`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       console.log('Response:', response);
       if (!response.ok) {
-        throw new Error('Failed to fetch tools');
+        throw new Error(`Failed to fetch tools: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
       console.log('Data:', data);
