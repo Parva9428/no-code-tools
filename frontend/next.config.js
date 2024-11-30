@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',  // Changed from 'standalone' to 'export' for static site generation
-  distDir: 'dist',   // Specify the build output directory
+  output: 'export',
+  distDir: 'dist',
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: true,
     domains: ['*'],
   },
   optimizeFonts: true,
@@ -29,10 +29,6 @@ const nextConfig = {
     ];
   },
   reactStrictMode: true,
-  experimental: {
-    appDir: true,
-    optimizeCss: true,
-  },
 }
 
 module.exports = nextConfig
