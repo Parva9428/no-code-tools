@@ -7,21 +7,12 @@ import os
 app = FastAPI()
 
 # CORS configuration
-origins = [
-    "http://localhost:5000",  # Development frontend
-    "http://localhost:3000",  # Alternative development port
-]
-
-# Add production frontend URL if available
-if os.getenv("FRONTEND_URL"):
-    origins.append(os.getenv("FRONTEND_URL"))
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 # Tool model

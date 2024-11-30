@@ -11,8 +11,6 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
   const categories = [
     'All',
     'Website Builder',
@@ -36,34 +34,35 @@ export default function Home() {
     try {
       setLoading(true);
       setError(null);
-      
-      const apiUrl = `${API_URL}/api/tools`;
-      console.log('Fetching tools from:', apiUrl);
-      
-      const response = await fetch(apiUrl, {
+
+      // Use the rewritten API endpoint
+      const response = await fetch('/api/tools', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        cache: 'no-store'
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
         throw new Error(`Failed to fetch tools: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      console.log('Data received:', data);
       
       if (!Array.isArray(data)) {
+        console.error('Invalid data format:', data);
         throw new Error('Invalid data format received');
       }
-      
+
       setTools(data);
     } catch (err) {
-      console.error('Error fetching tools:', err);
+      console.error('Error details:', err);
       setError(err instanceof Error ? err.message : 'Error loading tools');
     } finally {
       setLoading(false);
