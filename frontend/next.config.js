@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: 'export',  // Changed from 'standalone' to 'export' for static site generation
+  distDir: 'dist',   // Specify the build output directory
+  images: {
+    unoptimized: true, // Required for static export
+    domains: ['*'],
+  },
   async rewrites() {
     return [
       {
@@ -23,9 +28,6 @@ const nextConfig = {
     ];
   },
   reactStrictMode: true,
-  images: {
-    domains: ['*'],
-  },
   experimental: {
     appDir: true,
   },
