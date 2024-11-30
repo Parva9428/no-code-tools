@@ -9,8 +9,8 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-        // Add your custom colors here
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
     },
   },

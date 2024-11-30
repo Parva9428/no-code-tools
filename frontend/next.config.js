@@ -6,6 +6,7 @@ const nextConfig = {
     unoptimized: true, // Required for static export
     domains: ['*'],
   },
+  optimizeFonts: true,
   async rewrites() {
     return [
       {
@@ -30,6 +31,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     appDir: true,
+    optimizeCss: true,
   },
 }
 
