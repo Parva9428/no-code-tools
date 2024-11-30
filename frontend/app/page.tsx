@@ -33,19 +33,27 @@ export default function Home() {
 
   const fetchTools = async () => {
     try {
-      console.log('Fetching tools from:', `${config.apiBaseUrl}/api/tools`);
-      const response = await fetch(`${config.apiBaseUrl}/api/tools`, {
+      const apiUrl = `${config.apiBaseUrl}/api/tools`;
+      console.log('Fetching tools from:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        mode: 'cors',
+        credentials: 'omit'
       });
-      console.log('Response:', response);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
         throw new Error(`Failed to fetch tools: ${response.status} ${response.statusText}`);
       }
+      
       const data = await response.json();
-      console.log('Data:', data);
+      console.log('Data received:', data);
       setTools(data);
       setLoading(false);
     } catch (err) {
