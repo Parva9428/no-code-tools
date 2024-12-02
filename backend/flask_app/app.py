@@ -17,8 +17,9 @@ CORS(app)
 # Ensure instance folder exists
 os.makedirs('instance', exist_ok=True)
 
-# Configure SQLite database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/tools.db'
+# Configure SQLite database with absolute path
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance', 'tools.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -40,6 +41,10 @@ def init_db():
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
         raise
+
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({'message': 'Flask API is running'}), 200
 
 @app.route('/api/tools', methods=['GET'])
 def get_tools():
