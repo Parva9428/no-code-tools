@@ -61,18 +61,19 @@
       };
       # Runs when the workspace is (re)started
       onStart = {
-        "backend-flask" = ''
-      cd backend/flask_app
-      python app.py &
-    '';
-    "backend-fastapi" = ''
-      cd backend/fastapi_app
-      uvicorn fastapi_app.main:app --reload &
-    '';
-    "frontend" = ''
-      cd frontend
-      npm run dev &
-    '';
+       "backend-flask" = ''
+    cd backend/flask_app
+    export FLASK_APP=app.py
+    nohup python app.py > backend_flask.log 2>&1 &
+  '';
+  "backend-fastapi" = ''
+    cd backend/fastapi_app
+    nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker fastapi_app.app:app > backend_fastapi.log 2>&1 & 
+  '';
+  "frontend" = ''
+    cd frontend
+    nohup npm run dev > frontend.log 2>&1 &
+  '';
         # Example: start a background task to watch and re-build backend code
         # watch-backend = "npm run watch-backend";
       };
