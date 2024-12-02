@@ -1,22 +1,30 @@
 'use client';
 
+import { memo } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-export default function ThemeToggle() {
+type ThemeType = 'light' | 'dark';
+
+function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+
+  // Prevent invalid theme values
+  const currentTheme = (theme || 'light') as ThemeType;
 
   return (
     <button
       onClick={toggleTheme}
       className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-      aria-label="Toggle theme"
+      aria-label={`Switch to ${currentTheme === 'light' ? 'dark' : 'light'} theme`}
+      title={`Switch to ${currentTheme === 'light' ? 'dark' : 'light'} theme`}
     >
-      {theme === 'light' ? (
+      {currentTheme === 'light' ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5"
           viewBox="0 0 20 20"
           fill="currentColor"
+          aria-hidden="true"
         >
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
@@ -26,6 +34,7 @@ export default function ThemeToggle() {
           className="h-5 w-5"
           viewBox="0 0 20 20"
           fill="currentColor"
+          aria-hidden="true"
         >
           <path
             fillRule="evenodd"
@@ -37,3 +46,5 @@ export default function ThemeToggle() {
     </button>
   );
 }
+
+export default memo(ThemeToggle);

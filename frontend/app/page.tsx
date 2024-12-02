@@ -31,7 +31,14 @@ export default function Home() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('/api/tools');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://no-code-tools-backend.onrender.com';
+        console.log('Fetching from:', `${apiUrl}/api/tools`);
+        const response = await fetch(`${apiUrl}/api/tools`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error(`Failed to fetch tools: ${response.status} ${response.statusText}`);
         }
@@ -48,111 +55,108 @@ export default function Home() {
     fetchTools();
   }, []);
 
-  const filteredTools = tools.filter(tool => {
-    const matchesCategory = selectedCategory === 'All' || tool.category === selectedCategory;
-    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   if (loading) {
     return (
-      <main className="min-h-screen p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold">No-Code Tools Directory</h1>
-            <ThemeToggle />
-          </div>
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-4">Loading tools...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4">Loading...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold">No-Code Tools Directory</h1>
-            <ThemeToggle />
-          </div>
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-            <p className="font-bold">Error</p>
-            <p>{error}</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <p>Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
         </div>
-      </main>
+      </div>
     );
   }
+
+  const filteredTools = tools.filter(tool => {
+    if (selectedCategory !== 'All' && tool.category !== selectedCategory) {
+      return false;
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        tool.name.toLowerCase().includes(query) ||
+        tool.description.toLowerCase().includes(query) ||
+        tool.category.toLowerCase().includes(query)
+      );
+    }
+    return true;
+  });
 
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">No-Code Tools Directory</h1>
+          <h1 className="text-3xl font-bold">No-Code Tools Directory</h1>
           <ThemeToggle />
         </div>
-
-        <div className="mb-8 space-y-4">
+        
+        <div className="mb-8">
           <input
             type="text"
             placeholder="Search tools..."
-            className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
           />
-          
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full ${
-                  selectedCategory === category
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded ${
+                selectedCategory === category
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTools.map((tool, index) => (
+          {filteredTools.map((tool) => (
             <div
-              key={index}
-              className="border rounded-lg p-6 hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700"
+              key={tool.id}
+              className="border rounded-lg p-6 dark:bg-gray-800 dark:border-gray-700"
             >
-              <h3 className="text-xl font-semibold mb-2">{tool.name}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{tool.description}</p>
+              <h2 className="text-xl font-semibold mb-2">{tool.name}</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                {tool.description}
+              </p>
               <div className="flex justify-between items-center">
-                <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 px-3 py-1 rounded-full text-sm">
+                <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 px-3 py-1 rounded">
                   {tool.category}
                 </span>
                 <a
                   href={tool.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="text-blue-500 hover:text-blue-600"
                 >
-                  Visit Website →
+                  Visit →
                 </a>
               </div>
             </div>
           ))}
         </div>
-
-        {filteredTools.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No tools found matching your criteria.</p>
-          </div>
-        )}
       </div>
     </main>
   );
